@@ -7,7 +7,7 @@ const checkJwt = async (req) => {
 	if (token) {
 		const exist = await Jwt.findOne({ token });
 		if (exist) {
-			await jwt.verify(token, process.env.tokenKey, async (err, code) => {
+			await jwt.verify(token, process.env.jwtToken, async (err, code) => {
 				if (!err) id = code.id;
 			});
 		}

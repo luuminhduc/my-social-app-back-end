@@ -2,6 +2,17 @@ const mongoose = require("mongoose");
 const { isEmail } = require("validator");
 const bcrypt = require("bcrypt");
 
+const followSchema = new mongoose.Schema({
+	u_id: {
+		type: String,
+		required: true,
+	},
+	accepted: {
+		type: Boolean,
+		default: true,
+	},
+});
+
 const UserSchema = new mongoose.Schema({
 	username: {
 		type: String,
@@ -37,11 +48,11 @@ const UserSchema = new mongoose.Schema({
 		max: 20,
 	},
 	following_list: {
-		type: [String],
+		type: Array,
 		default: [],
 	},
 	follower_list: {
-		type: [String],
+		type: Array,
 		default: [],
 	},
 	is_active: {
@@ -52,6 +63,11 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
+	is_private: {
+		type: Boolean,
+		default: false,
+	},
+
 	created_at: {
 		type: Date,
 		default: new Date(),
