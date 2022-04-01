@@ -53,7 +53,7 @@ const accept_follow = async (req, res) => {
 				"following_list.u_id": u_id,
 			},
 			{
-				$set: { "following_list.$.accepted": false },
+				$set: { "following_list.$.accepted": true },
 			},
 			{ new: true }
 		);
@@ -63,7 +63,7 @@ const accept_follow = async (req, res) => {
 				"follower_list.u_id": target_id,
 			},
 			{
-				$set: { "follower_list.$.accepted": false },
+				$set: { "follower_list.$.accepted": true },
 			},
 			{ new: true }
 		);

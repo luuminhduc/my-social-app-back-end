@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		default: "",
 	},
+	birthday: {
+		type: Date,
+		default: "",
+	},
 	password: {
 		type: String,
 		required: true,
@@ -67,7 +71,10 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
-
+	hobbies: {
+		type: [String],
+		default: [],
+	},
 	created_at: {
 		type: Date,
 		default: new Date(),
