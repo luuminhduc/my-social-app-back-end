@@ -67,4 +67,16 @@ const logout = async (req, res) => {
 	}
 };
 
-module.exports = { login, register, logout };
+const get_auth_info = async (req, res) => {
+	const u_id = await checkJwt(req);
+	if (!u_id) return resFailure(res, 422, "Unauthenticated");
+
+	try {
+		const user = await User.findById(u_id);
+		resSuccess(res, 200, { user });
+	} catch (err) {
+		resFailure(res, 400, err.message);
+	}
+};
+
+module.exports = { login, register, logout, get_auth_info };

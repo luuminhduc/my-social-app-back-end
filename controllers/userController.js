@@ -1,6 +1,27 @@
+const {
+	ref,
+	uploadBytesResumable,
+	getDownloadURL,
+} = require("firebase/storage");
 const { checkJwt } = require("../helper/checkJwt");
 const { resSuccess, resFailure } = require("../helper/formatRes");
 const User = require("../models/User");
+const storage = require("../db/firebase");
+
+global.XMLHttpRequest = require("xhr2");
+
+const get_user_info = async (req, res) => {
+	const u_id = await checkJwt(req);
+	if (!u_id) return resFailure(res, 422, "Unauthenticated");
+
+	try {
+		const { id } = req.params;
+		const user = await User.findById(id);
+		resSuccess(res, 200, { user });
+	} catch (err) {
+		resFailure(res, 400, err.message);
+	}
+};
 
 const follow_target = async (req, res) => {
 	const u_id = await checkJwt(req);
@@ -76,4 +97,75 @@ const accept_follow = async (req, res) => {
 	}
 };
 
-module.exports = { follow_target, accept_follow };
+const update_user_info = async (req, res) => {
+	const u_id = await checkJwt(req);
+	if (!u_id) return resFailure(res, 422, "Unauthenticated");
+
+	const { file } = req;
+
+	if (file) {
+		uploadAvatar(file).then((url) => {
+			updateInfo(u_id, { ...req.body, avatar: url }, res);
+		});
+	} else {
+		updateInfo(u_id, req.body, res);
+	}
+};
+
+const updateInfo = async (id, data, res) => {
+	const { avatar, username, phone_number, about, gender, birthday, hobbies } =
+		data;
+
+	try {
+		const user = await User.findByIdAndUpdate(
+			id,
+			{
+				username: username ? username : this.username,
+				avatar: avatar ? avatar : this.avatar,
+				phone_number: phone_number ? phone_number : this.phone_number,
+				about: about ? about : this.about,
+				gender: gender ? gender : this.gender,
+				birthday: birthday ? birthday : this.birthday,
+				hobbies: hobbies ? hobbies : this.hobbies,
+			},
+			{ new: true }
+		);
+		resSuccess(res, 200, { user });
+	} catch (err) {
+		console.log(err);
+		resFailure(res, 400, err.message);
+	}
+};
+
+const uploadAvatar = (file) => {
+	return new Promise((resolve, reject) => {
+		const time = new Date().toISOString();
+		const filename = file.originalname + time;
+
+		const storageRef = ref(storage, `/avatars/${filename}`);
+
+		const uploadTask = uploadBytesResumable(storageRef, file.buffer, {
+			contentType: "image/jpeg",
+		});
+
+		uploadTask.on(
+			"state_changed",
+			() => {},
+			(err) => {
+				console.log(err);
+				reject(err);
+			},
+			async () => {
+				const url = await getDownloadURL(uploadTask.snapshot.ref);
+				resolve(url);
+			}
+		);
+	});
+};
+
+module.exports = {
+	follow_target,
+	accept_follow,
+	update_user_info,
+	get_user_info,
+};
