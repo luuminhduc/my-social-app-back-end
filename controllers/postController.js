@@ -14,11 +14,10 @@ global.XMLHttpRequest = require("xhr2");
 const get_posts = async (req, res) => {
 	const u_id = await checkJwt(req);
 	if (!u_id) return resFailure(res, 422, "Unauthenticated");
-	const { start } = req.query;
 
 	try {
-		const posts = await Post.find({ $or: [{ u_id }] }).limit(start + 6);
-		resSuccess(res, 200, { posts: posts.slice(start) });
+		const posts = await Post.find({ $or: [{ u_id }] });
+		resSuccess(res, 200, { posts });
 	} catch (err) {
 		resFailure(res, 400, err.message);
 	}
@@ -27,11 +26,10 @@ const get_posts = async (req, res) => {
 const get_posts_of_user = async (req, res) => {
 	const u_id = await checkJwt(req);
 	if (!u_id) return resFailure(res, 422, "Unauthenticated");
-	const { start } = req.query;
 	const { id } = req.params;
 	try {
-		const posts = await Post.find({ u_id: id }).limit(start + 6);
-		resSuccess(res, 200, { posts: posts.slice(start) });
+		const posts = await Post.find({ u_id: id });
+		resSuccess(res, 200, { posts });
 	} catch (err) {
 		resFailure(res, 400, err.message);
 	}
