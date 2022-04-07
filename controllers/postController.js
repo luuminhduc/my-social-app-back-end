@@ -11,6 +11,32 @@ const {
 
 global.XMLHttpRequest = require("xhr2");
 
+const get_posts = async (req, res) => {
+	const u_id = await checkJwt(req);
+	if (!u_id) return resFailure(res, 422, "Unauthenticated");
+	const { start } = req.query;
+
+	try {
+		const posts = await Post.find({ $or: [{ u_id }] }).limit(start + 6);
+		resSuccess(res, 200, { posts: posts.slice(start) });
+	} catch (err) {
+		resFailure(res, 400, err.message);
+	}
+};
+
+const get_posts_of_user = async (req, res) => {
+	const u_id = await checkJwt(req);
+	if (!u_id) return resFailure(res, 422, "Unauthenticated");
+	const { start } = req.query;
+	const { id } = req.params;
+	try {
+		const posts = await Post.find({ u_id: id }).limit(start + 6);
+		resSuccess(res, 200, { posts: posts.slice(start) });
+	} catch (err) {
+		resFailure(res, 400, err.message);
+	}
+};
+
 const add_post = async (req, res) => {
 	const u_id = await checkJwt(req);
 	if (!u_id) return resFailure(res, 422, "Unauthenticated");
@@ -123,4 +149,11 @@ const savePostToDb = async (res, data) => {
 	}
 };
 
-module.exports = { add_post, like_post, remove_like_post, delete_post };
+module.exports = {
+	add_post,
+	like_post,
+	remove_like_post,
+	delete_post,
+	get_posts,
+	get_posts_of_user,
+};
